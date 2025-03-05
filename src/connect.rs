@@ -383,9 +383,9 @@ impl ConnectorService {
                     let conn = socks::connect(proxy, dst, dns).await?;
                     let conn = TokioIo::new(conn);
                     let conn = TokioIo::new(conn);
-                    let server_name =
-                        rustls_pki_types::ServerName::try_from(host.as_str().to_owned())
-                            .map_err(|_| "Invalid Server Name")?;
+                    let clean_host = host.trim_start_matches('[').trim_end_matches(']');
+                    let server_name = rustls_pki_types::ServerName::try_from(clean_host.to_owned())
+                        .map_err(|_| "Invalid Server Name")?;
                     let io = RustlsConnector::from(tls)
                         .connect(server_name, conn)
                         .await?;
